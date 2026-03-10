@@ -10,18 +10,25 @@ OUTPUT_FILE = DATA_DIR / "yelp_in_pa_business.json"
 
 VALID_STATES = {"IN", "PA"}
 
-print("Filtering Yelp dataset for IN and PA...")
+print("Filtering Yelp dataset for IN and PA restaurants...")
 
 count = 0
 
 with open(INPUT_FILE, "r", encoding="utf-8") as infile, \
      open(OUTPUT_FILE, "w", encoding="utf-8") as outfile:
-    
+
     for line in infile:
         business = json.loads(line)
-        if business.get("state") in VALID_STATES:
+
+        state = business.get("state")
+        categories = business.get("categories")
+
+        if (
+            state in VALID_STATES
+            and categories is not None
+            and ("Restaurant" in categories or "Food" in categories)
+        ):
             outfile.write(json.dumps(business) + "\n")
             count += 1
 
-print(f"Filtering complete. {count} businesses saved.")
-
+print(f"Total businesses kept: {count}")

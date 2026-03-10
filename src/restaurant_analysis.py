@@ -90,6 +90,30 @@ def plot_rating_vs_reviews(df):
             color=colors.get(state, "gray")
         )
 
+    # Calculate correlation
+    correlation = df["total_reviews"].corr(df["avg_stars"])
+
+    # Display correlation on plot
+    plt.text(
+        0.05,
+        0.95,
+        f"Correlation: {correlation:.3f}",
+        transform=plt.gca().transAxes,
+        fontsize=11,
+        verticalalignment='top',
+        bbox=dict(boxstyle="round", alpha=0.2)
+    )
+
+    plt.title("Average Rating vs Total Reviews (IN vs PA)")
+    plt.xlabel("Total Reviews")
+    plt.ylabel("Average Star Rating")
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig("assets/images/rating_vs_reviews.png", dpi=300)
+    plt.close()
+
+
     plt.title("Average Rating vs Total Reviews (IN vs PA)")
     plt.xlabel("Total Reviews")
     plt.ylabel("Average Star Rating")
@@ -122,4 +146,33 @@ def plot_average_reviews_by_state(df):
 
     plt.tight_layout()
     plt.savefig("assets/images/avg_reviews_by_state.png", dpi=300)
+    plt.close()
+
+def plot_rating_boxplot_by_state(df):
+    ensure_output_directory()
+
+    plt.figure(figsize=(6, 5))
+
+    data = [
+        df[df["state"] == "IN"]["avg_stars"],
+        df[df["state"] == "PA"]["avg_stars"]
+    ]
+
+    box = plt.boxplot(
+        data,
+        patch_artist=True,
+        labels=["IN", "PA"]
+    )
+
+    colors = ["blue", "red"]
+
+    for patch, color in zip(box["boxes"], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.5)
+
+    plt.title("Distribution of Restaurant Ratings by State")
+    plt.ylabel("Average Star Rating")
+
+    plt.tight_layout()
+    plt.savefig("assets/images/rating_boxplot_by_state.png", dpi=300)
     plt.close()
