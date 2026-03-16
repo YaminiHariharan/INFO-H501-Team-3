@@ -123,6 +123,24 @@ python3 src/main.py
 These findings support the importance of regional filtering when performing targeted business analysis.
 ---
 
+Restaurant Analysis Project
+
+This project analyzes restaurant data from Indianapolis (Indiana)
+and Philadelphia (Pennsylvania).
+
+Data Source
+Processed Yelp restaurant dataset.
+
+Visualizations
+1. Restaurant counts by city
+2. Top restaurant categories
+3. Rating distributions
+4. Total reviews comparison
+
+Indiana is represented in blue.
+Pennsylvania is represented in red.
+
+
 ## Contributors
 
 - Jay Kelley, Yamini Hariharan and Divya Patel
