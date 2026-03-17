@@ -7,16 +7,14 @@ df = pd.read_json(
     lines=True
 )
 
-# Filter cities
+# Separate cities
 indy = df[df["city"] == "Indianapolis"]
 philly = df[df["city"] == "Philadelphia"]
 
-# -------------------------------
-# GRAPH 1: Restaurants by City
-# -------------------------------
+# GRAPH 1 — Restaurants by City
 city_counts = df["city"].value_counts()
 
-plt.figure()
+plt.figure(figsize=(8,5))
 city_counts.plot(kind="bar", color=["blue","red"])
 
 plt.title("Restaurant Count: Indianapolis vs Philadelphia")
@@ -27,14 +25,11 @@ plt.tight_layout()
 plt.savefig("graphs/restaurants_by_city.png")
 plt.close()
 
-# -------------------------------
-# GRAPH 2: Top Categories
-# -------------------------------
+# GRAPH 2 — Top Categories
 categories = df["categories"].dropna().str.split(", ").explode()
-
 top_categories = categories.value_counts().head(10)
 
-plt.figure()
+plt.figure(figsize=(10,6))
 top_categories.plot(kind="bar")
 
 plt.title("Top Restaurant Categories")
@@ -45,10 +40,8 @@ plt.tight_layout()
 plt.savefig("graphs/top_categories.png")
 plt.close()
 
-# -------------------------------
-# GRAPH 3: Rating Distribution
-# -------------------------------
-plt.figure()
+# GRAPH 3 — Rating Distribution
+plt.figure(figsize=(8,5))
 
 plt.hist(indy["avg_stars"], bins=10, alpha=0.7, label="Indiana", color="blue")
 plt.hist(philly["avg_stars"], bins=10, alpha=0.7, label="Pennsylvania", color="red")
@@ -58,21 +51,17 @@ plt.xlabel("Average Rating")
 plt.ylabel("Number of Restaurants")
 
 plt.legend()
-
 plt.tight_layout()
 plt.savefig("graphs/rating_distribution.png")
 plt.close()
 
-# -------------------------------
-# GRAPH 4: Total Reviews
-# -------------------------------
+# GRAPH 4 — Total Reviews
 reviews = {
     "Indianapolis": indy["total_reviews"].sum(),
     "Philadelphia": philly["total_reviews"].sum()
 }
 
-plt.figure()
-
+plt.figure(figsize=(6,5))
 plt.bar(reviews.keys(), reviews.values(), color=["blue","red"])
 
 plt.title("Total Reviews by City")
@@ -82,4 +71,34 @@ plt.tight_layout()
 plt.savefig("graphs/reviews_comparison.png")
 plt.close()
 
-print("Graphs generated successfully in /graphs")
+print("Graphs generated successfully.")
+
+# -------------------------------
+# GRAPH 5 — Side-by-Side Cuisine Comparison
+# -------------------------------
+
+# Extract categories
+indy_categories = indy["categories"].dropna().str.split(", ").explode()
+philly_categories = philly["categories"].dropna().str.split(", ").explode()
+
+# Get top 5 categories from each
+indy_top = indy_categories.value_counts().head(5)
+philly_top = philly_categories.value_counts().head(5)
+
+# Combine into one DataFrame
+combined = pd.DataFrame({
+    "Indiana": indy_top,
+    "Pennsylvania": philly_top
+}).fillna(0)
+
+# Plot side-by-side
+combined.plot(kind="bar")
+
+plt.title("Top Cuisine Comparison: Indianapolis vs Philadelphia")
+plt.xlabel("Cuisine Type")
+plt.ylabel("Number of Restaurants")
+
+plt.tight_layout()
+plt.savefig("graphs/cuisine_side_by_side.png")
+plt.close()
+
