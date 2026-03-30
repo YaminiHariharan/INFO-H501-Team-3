@@ -170,3 +170,60 @@ plt.savefig("graphs/best_value_cuisines.png")
 plt.close()
 
 print("Graphs generated successfully.")
+
+# GRAPH 8 — Postal Code Hotspots by Restaurant Count
+postal_counts = (
+    df.groupby(["city_label", "postal_code"])
+    .size()
+    .reset_index(name="restaurant_count")
+)
+
+postal_counts = postal_counts[postal_counts["restaurant_count"] >= 5]
+
+top_postal_counts = (
+    postal_counts.sort_values(["city_label", "restaurant_count"], ascending=[True, False])
+    .groupby("city_label")
+    .head(10)
+)
+
+postal_counts_pivot = top_postal_counts.pivot(index="postal_code", columns="city_label", values="restaurant_count").fillna(0)
+
+plt.figure(figsize=(12, 6))
+postal_counts_pivot.plot(kind="bar")
+plt.title("Top Postal Code Food Hotspots: Indianapolis, IN vs Philadelphia, PA")
+plt.xlabel("Postal Code")
+plt.ylabel("Number of Restaurants")
+plt.xticks(rotation=45, ha="right")
+plt.tight_layout()
+plt.savefig("graphs/postal_code_hotspots.png")
+plt.close()
+
+# GRAPH 9 — Postal Code Quality Hotspots
+postal_quality = (
+    df.groupby(["city_label", "postal_code"])
+    .agg(
+        avg_rating=("avg_stars", "mean"),
+        restaurant_count=("postal_code", "size"),
+    )
+    .reset_index()
+)
+
+postal_quality = postal_quality[postal_quality["restaurant_count"] >= 5]
+
+top_postal_quality = (
+    postal_quality.sort_values(["city_label", "avg_rating"], ascending=[True, False])
+    .groupby("city_label")
+    .head(10)
+)
+
+postal_quality_pivot = top_postal_quality.pivot(index="postal_code", columns="city_label", values="avg_rating").fillna(0)
+
+plt.figure(figsize=(12, 6))
+postal_quality_pivot.plot(kind="bar")
+plt.title("Top Postal Code Quality Hotspots: Indianapolis, IN vs Philadelphia, PA")
+plt.xlabel("Postal Code")
+plt.ylabel("Average Rating")
+plt.xticks(rotation=45, ha="right")
+plt.tight_layout()
+plt.savefig("graphs/postal_code_quality_hotspots.png")
+plt.close()
