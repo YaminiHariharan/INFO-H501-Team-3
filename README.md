@@ -1,57 +1,42 @@
-# 🍽 ️ Restaurant Analysis: Indianapolis vs Philadelphi
-## 🧠 Executive Summary
+📊 Data Analysis: Indiana vs Pennsylvania Restaurant Comparison
 
-This project compares restaurant ecosystems in Indianapolis and Philadelphia using Yelp data.  
-Our analysis reveals that Philadelphia has a higher volume and diversity of restaurants, while Indianapolis maintains strong representation in key cuisine categories.  
-Across both cities, customer ratings remain consistently high, but Philadelphia shows significantly greater customer engagement through review activity.
+This project analyzes restaurant data from Indianapolis, Indiana and Philadelphia, Pennsylvania to understand differences in food availability, quality, popularity, and value.
 
+🏙️ Restaurant Availability
+Philadelphia has a higher total number of restaurants compared to Indianapolis.
+This suggests a denser and more diverse food scene in Pennsylvania.
+🍽️ Cuisine Distribution
+Both cities share common categories such as American, Breakfast & Brunch, and Coffee & Tea.
+However, the distribution varies, showing regional food preferences and diversity differences.
+⭐ Rating Distribution
+Ratings in both cities are generally centered between 3.5 and 4.5 stars.
+Indianapolis shows slightly more consistency, while Philadelphia has a wider spread of ratings.
+📈 Review Activity
+Philadelphia restaurants receive significantly more total reviews.
+This indicates higher customer engagement and possibly a more active dining culture.
+🏆 Top Rated Cuisines
+The highest-rated cuisines differ between cities, showing that quality is not tied to quantity.
+Some less common cuisines achieve the highest ratings, highlighting niche excellence.
+💡 Best Value Cuisines
+Value was calculated using a combination of average rating and review volume.
+This helps identify cuisines that are both high quality and widely trusted.
+Results show that the “best value” options are not always the most popular categories.
+📍 Food Hotspots (Postal Code Analysis)
+Certain postal codes have a higher concentration of restaurants.
+Some areas also stand out for higher average ratings, indicating strong local food hubs.
+These hotspots reveal where the best dining experiences are clustered in each city.
+🧠 Key Insights
+More restaurants does not always mean better quality.
+High review counts often correlate with reliability but not necessarily higher ratings.
+The best cuisines are often not the most common ones.
+Location plays a major role in both restaurant density and quality.
+🚀 Conclusion
 
-## 📊 Project Overview
-This project analyzes restaurant data from **Indianapolis (Indiana)** and **Philadelphia (Pennsylvania)** to understand differences in:
+This analysis shows clear differences between Indianapolis and Philadelphia in terms of:
 
-- Restaurant distribution
-- Cuisine types
-- Customer ratings
-- Review activity
+restaurant availability
+cuisine diversity
+customer engagement
+and food quality
 
-The goal is to provide clear, data-driven insights comparing the two cities.
-
----
-
-## 📁 Dataset
-The dataset used in this project is a processed Yelp dataset located in:
-
-
-It includes:
-- Restaurant names and locations
-- Categories (cuisine types)
-- Average ratings
-- Total review counts
-
----
-
-## 📈 Visualizations
-
-The following graphs were generated:
-
-### 1. Restaurants by City
-- Compares total number of restaurants
-- 🔵 Indiana (Indianapolis)
-- 🔴 Pennsylvania (Philadelphia)
-
-### 2. Top Restaurant Categories
-- Shows most common cuisine types across both cities
-
-### 3. Rating Distribution
-- Compares average ratings between cities
-
-### 4. Total Reviews Comparison
-- Shows total customer engagement
-
-### 5. Cuisine Comparison (Side-by-Side)
-- Direct comparison of top food categories between cities
-
-All graphs are located in the `graphs/` folder.
-
----
-
+By combining multiple metrics, the project provides a more complete understanding of each city’s food landscape.
