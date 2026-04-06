@@ -46,7 +46,6 @@ st.markdown(
 )
 
 
-# ---------- helpers ----------
 def pick_col(df: pd.DataFrame, candidates: Iterable[str]) -> Optional[str]:
     cols = {c.lower(): c for c in df.columns}
     for cand in candidates:
@@ -154,7 +153,6 @@ def insight_lines(df: pd.DataFrame, city_col: Optional[str], rating_series: Opti
     return lines[:4] if lines else ["Use the filters to surface the strongest story in the data."]
 
 
-# ---------- load data ----------
 st.sidebar.title("Controls")
 st.sidebar.caption("Use these filters to make the story presentation-ready.")
 
@@ -214,7 +212,6 @@ if category_col:
     if cat_search.strip():
         filtered = filtered[clean_text_series(filtered[category_col]).str.contains(cat_search.strip(), case=False, na=False)]
 
-# ---------- hero ----------
 st.markdown("""
 <h1 style='font-size:48px; margin-bottom:0;'>Restaurant Market Intelligence</h1>
 <p style='font-size:18px; color:#9ca3af; margin-top:0;'>A data-driven comparison of restaurant ecosystems across cities — designed for decision-making and storytelling.</p>
@@ -242,7 +239,7 @@ with st.expander("What this dashboard shows"):
         """
     )
 
-# ---------- KPIs ----------
+
 metric_cols = st.columns(4)
 metric_cols[0].metric("Restaurants", f"{len(filtered):,}")
 
@@ -265,14 +262,14 @@ else:
 
 st.caption(f"Data source: {source_name}")
 
-# ---------- insights ----------
+
 st.subheader("Key Insights")
 ins_cols = st.columns(2)
 for i, line in enumerate(insight_lines(filtered, city_col, rating_series, reviews_col, category_col)):
     with ins_cols[i % 2]:
         st.markdown(f"**{i + 1}.** {line}")
 
-# ---------- charts ----------
+
 left, right = st.columns((1.1, 0.9))
 
 with left:
@@ -323,7 +320,6 @@ with bottom_right:
     else:
         st.info("Review-count data is unavailable.")
 
-# ---------- table ----------
 st.subheader("Filtered restaurant table")
 display_cols = [c for c in [name_col, city_col, category_col, rating_col, reviews_col, postal_col, address_col] if c]
 if display_cols:
