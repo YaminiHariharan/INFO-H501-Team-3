@@ -1,5 +1,3 @@
-cp scripts/generate_graphs.py scripts/generate_graphs.py.bak
-cat > scripts/generate_graphs.py <<'PY'
 import os
 import numpy as np
 import pandas as pd
@@ -20,7 +18,7 @@ df["city_label"] = df["city"].apply(
 indy["city_label"] = "Indianapolis, IN"
 philly["city_label"] = "Philadelphia, PA"
 
-# GRAPH 1 — Restaurant Count by City
+
 city_counts = df["city_label"].value_counts().reindex(
     ["Indianapolis, IN", "Philadelphia, PA"]
 ).dropna()
@@ -34,7 +32,6 @@ plt.tight_layout()
 plt.savefig("graphs/restaurants_by_city.png")
 plt.close()
 
-# GRAPH 2 — Top Categories
 categories = df["categories"].dropna().astype(str).str.split(", ").explode()
 top_categories = categories.value_counts().head(10)
 
@@ -47,7 +44,7 @@ plt.tight_layout()
 plt.savefig("graphs/top_categories.png")
 plt.close()
 
-# GRAPH 3 — Rating Distribution
+
 plt.figure(figsize=(8, 5))
 plt.hist(indy["avg_stars"].dropna(), bins=10, alpha=0.7, label="Indianapolis, IN")
 plt.hist(philly["avg_stars"].dropna(), bins=10, alpha=0.7, label="Philadelphia, PA")
@@ -59,7 +56,7 @@ plt.tight_layout()
 plt.savefig("graphs/rating_distribution.png")
 plt.close()
 
-# GRAPH 4 — Total Reviews
+
 reviews = {
     "Indianapolis, IN": indy["total_reviews"].fillna(0).sum(),
     "Philadelphia, PA": philly["total_reviews"].fillna(0).sum(),
@@ -73,7 +70,7 @@ plt.tight_layout()
 plt.savefig("graphs/reviews_comparison.png")
 plt.close()
 
-# GRAPH 5 — Cuisine Side-by-Side (Top 10)
+
 indy_categories = indy["categories"].dropna().astype(str).str.split(", ").explode()
 philly_categories = philly["categories"].dropna().astype(str).str.split(", ").explode()
 
@@ -103,7 +100,7 @@ def clean_categories(frame):
     out = out[out["categories"].ne("") & out["categories"].ne("nan")]
     return out
 
-# GRAPH 6 — Top 5 Highest-Rated Cuisines
+
 exp = clean_categories(df)
 
 rated = (
@@ -135,9 +132,7 @@ plt.tight_layout()
 plt.savefig("graphs/top_rated_cuisines.png")
 plt.close()
 
-# GRAPH 7 — Best Value Cuisines (proxy score)
-# Because this processed dataset has no price column, value is estimated by
-# rating weighted by review volume.
+
 value_df = clean_categories(df)
 value_df = value_df[value_df["total_reviews"].notna() & value_df["avg_stars"].notna()].copy()
 value_df["value_score"] = value_df["avg_stars"] * np.log1p(value_df["total_reviews"])
@@ -171,7 +166,7 @@ plt.tight_layout()
 plt.savefig("graphs/best_value_cuisines.png")
 plt.close()
 
-# GRAPH 8 — Postal Code Hotspots by Restaurant Count
+
 postal_counts = (
     df.groupby(["city_label", "postal_code"])
     .size()
@@ -198,7 +193,7 @@ plt.tight_layout()
 plt.savefig("graphs/postal_code_hotspots.png")
 plt.close()
 
-# GRAPH 9 — Postal Code Quality Hotspots
+
 postal_quality = (
     df.groupby(["city_label", "postal_code"])
     .agg(
