@@ -1,7 +1,7 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo
+*.streamlit/
 
 # Virtual environments
 venv/
@@ -10,9 +10,6 @@ venv/
 # Database files
 *.db
 
-# Ignore large raw Yelp datasets
-data/yelp_*.json
-
 
 # Ignore Mac system files
 .DS_Store
@@ -20,9 +17,7 @@ data/yelp_*.json
 # Generated images
 *.png
 
-assets/images/*.html
 
 
 
-*.zip
 week-9/
