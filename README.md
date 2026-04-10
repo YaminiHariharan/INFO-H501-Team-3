@@ -97,7 +97,7 @@ Tests are located in the `/tests` directory.
 
 - Location data is approximate (ZIP-level), not exact addresses
 - Ratings and reviews may reflect bias or incomplete user feedback
-- The app does not guarantee restaurant quality — it only summarizes available data
+- The app does not guarantee restaurant quality, it only summarizes available data
 
 To mitigate risks:
 - the app clearly displays ratings and review counts
