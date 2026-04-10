@@ -1,50 +1,137 @@
-📊 Data Analysis: Indiana vs Pennsylvania Restaurant Comparison
+# 🍽️ Restaurant Finder & Market Analysis
 
-This project analyzes restaurant data from Indianapolis, Indiana and Philadelphia, Pennsylvania to understand differences in food availability, quality, popularity, and value.
+## 📊 Overview
 
-🏙️ Restaurant Availability
-Philadelphia has a higher total number of restaurants compared to Indianapolis.
-This suggests a denser and more diverse food scene in Pennsylvania.
+This project builds an interactive Streamlit web application to explore and compare restaurant data across Indianapolis, Indiana and Philadelphia, Pennsylvania.
 
-🍽️ Cuisine Distribution
-Both cities share common categories such as American, Breakfast & Brunch, and Coffee & Tea.
-However, the distribution varies, showing regional food preferences and diversity differences.
+The goal is to help users quickly:
+- discover restaurants
+- compare quality and popularity
+- make decisions based on ratings, reviews, and location
 
-⭐ Rating Distribution
-Ratings in both cities are generally centered between 3.5 and 4.5 stars.
-Indianapolis shows slightly more consistency, while Philadelphia has a wider spread of ratings.
+The app is designed for **fast client decision-making (under 30 seconds)** using filters, rankings, and a live map.
 
-📈 Review Activity
-Philadelphia restaurants receive significantly more total reviews.
-This indicates higher customer engagement and possibly a more active dining culture.
+---
 
-🏆 Top Rated Cuisines
-The highest-rated cuisines differ between cities, showing that quality is not tied to quantity.
-Some less common cuisines achieve the highest ratings, highlighting niche excellence.
+## 👤 Stakeholder Value
 
-💡 Best Value Cuisines
-Value was calculated using a combination of average rating and review volume.
-This helps identify cuisines that are both high quality and widely trusted.
-Results show that the “best value” options are not always the most popular categories.
+This tool is useful for:
+- customers looking for restaurants nearby
+- users comparing food quality across cities
+- anyone wanting a quick and visual restaurant decision tool
 
-📍 Food Hotspots (Postal Code Analysis)
-Certain postal codes have a higher concentration of restaurants.
-Some areas also stand out for higher average ratings, indicating strong local food hubs.
-These hotspots reveal where the best dining experiences are clustered in each city.
+The app provides:
+- search and filtering
+- star ratings and review counts
+- location-based (ZIP radius) filtering
+- visual insights and maps
 
-🧠 Key Insights
-More restaurants does not always mean better quality.
-High review counts often correlate with reliability but not necessarily higher ratings.
-The best cuisines are often not the most common ones.
-Location plays a major role in both restaurant density and quality.
+---
 
-Conclusion:
+## 🗂️ Data Description
 
-This analysis shows clear differences between Indianapolis and Philadelphia in terms of:
+The dataset contains restaurant information including:
+- name
+- city
+- category (cuisine)
+- rating (stars)
+- review count
+- ZIP code (used for location)
+- optional comment text
 
-Restaurant Availability
-Cuisine Diversity
-Customer Engagement
-Food quality
+ZIP codes are mapped to approximate geographic coordinates for location-based filtering and visualization.
 
-By combining multiple metrics, the project provides a more complete understanding of each city’s food landscape.
+---
+
+## ⚙️ Algorithm Description
+
+The app processes user input through several steps:
+
+1. **Filtering (pandas)**
+   - search keyword
+   - city selection
+   - category selection
+   - minimum rating
+   - minimum review count
+
+2. **Location Filtering**
+   - user selects a ZIP code
+   - distance is calculated using the Haversine formula
+   - only restaurants within a chosen radius are shown
+
+3. **Ranking**
+   - restaurants are sorted by:
+     - rating (primary)
+     - review count (secondary)
+   - used to generate “Top Picks”
+
+4. **Visualization**
+   - charts using Plotly
+   - map using PyDeck (ZIP-based coordinates)
+
+---
+
+## 🛠️ Tools Used
+
+- **Python** → core programming
+- **pandas** → data manipulation
+- **Streamlit** → web app interface
+- **Plotly** → charts and visualizations
+- **PyDeck** → map visualization
+- **GitHub** → version control
+
+---
+
+## 🧪 Testing
+
+Basic tests are included to verify:
+- filtering logic
+- distance calculations
+- ranking behavior
+
+Tests are located in the `/tests` directory.
+
+---
+
+## ⚠️ Ethical Considerations
+
+- Location data is approximate (ZIP-level), not exact addresses
+- Ratings and reviews may reflect bias or incomplete user feedback
+- The app does not guarantee restaurant quality — it only summarizes available data
+
+To mitigate risks:
+- the app clearly displays ratings and review counts
+- users can filter results based on multiple criteria
+- limitations are acknowledged in the interface
+
+---
+
+## 🚀 Key Insights
+
+- More restaurants does not always mean better quality
+- High review counts indicate reliability, not necessarily higher ratings
+- Less common cuisines often have the highest ratings
+- Restaurant quality and density vary significantly by location
+
+---
+
+## 🧠 Conclusion
+
+This project combines data analysis and an interactive web app to provide a complete restaurant exploration experience.
+
+By integrating:
+- filtering
+- ranking
+- location-based search
+- visualization
+
+it allows users to make fast, informed dining decisions.
+
+---
+
+## 📌 Future Improvements
+
+- exact latitude/longitude for each restaurant
+- real-time data from APIs (Google Places, Yelp)
+- user personalization and recommendations
+- improved sentiment analysis of reviews
