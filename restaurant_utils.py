@@ -1,153 +1,104 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Optional
-
 import pandas as pd
 
 
 def find_col(df: pd.DataFrame, keywords: list[str]) -> Optional[str]:
     for col in df.columns:
-        low = col.lower()
-        if any(k in low for k in keywords):
+        if any(k in col.lower() for k in keywords):
             return col
     return None
 
 
 def clean_text(series: pd.Series) -> pd.Series:
-    return series.fillna("").astype(str).str.strip()
+    return series.fillna("").astype(str)
 
 
 def infer_rating_col(df: pd.DataFrame) -> Optional[str]:
-    return find_col(df, ["rating", "stars", "avg_stars", "average_rating", "avg_rating"])
+    return find_col(df, ["rating", "stars"])
 
 
 def infer_review_col(df: pd.DataFrame) -> Optional[str]:
-    return find_col(df, ["review_count", "reviews", "total_reviews", "num_reviews"])
+    return find_col(df, ["review"])
 
 
 def infer_comment_col(df: pd.DataFrame) -> Optional[str]:
-    return find_col(df, ["comment", "comments", "review_text", "text", "description", "snippet", "tip", "note"])
+    return find_col(df, ["comment", "text"])
 
 
 def fallback_image(category: object) -> str:
-    text = str(category or "restaurant").strip().lower().replace(" ", ",")
-    if not text or text == "nan":
-        text = "restaurant"
-    return f"https://source.unsplash.com/1200x800/?{text}"
+    return f"https://source.unsplash.com/800x500/?{category}"
 
 
 def extract_badges(row: pd.Series, comment_col: Optional[str]) -> list[str]:
     if not comment_col or comment_col not in row.index:
         return []
     text = str(row.get(comment_col, "")).lower()
-    return [word for word in ["funny", "cool", "useful"] if word in text]
+    return [w for w in ["funny", "cool", "useful"] if w in text]
 
 
-def distance_miles(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    r = 3958.8
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    dphi = math.radians(lat2 - lat1)
-    dlambda = math.radians(lon2 - lon1)
-    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-    return 2 * r * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+def distance_miles(lat1, lon1, lat2, lon2):
+    R = 3958.8
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+    return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
 
-@dataclass
+# ✅ THIS IS THE IMPORTANT PART
 class RestaurantFinder:
-    df: pd.DataFrame
-    zip_coords: dict[str, tuple[float, float]]
 
-    def filter(
-        self,
-        *,
-        search: str = "",
-        city: str = "All",
-        category: str = "All",
-        min_rating: float = 0.0,
-        min_reviews: int = 0,
-        user_zip: Optional[str] = None,
-        radius_miles: float = 5.0,
-        name_col: Optional[str] = None,
-        city_col: Optional[str] = None,
-        category_col: Optional[str] = None,
-        rating_col: Optional[str] = None,
-        review_col: Optional[str] = None,
-        zip_col: Optional[str] = None,
-        comment_col: Optional[str] = None,
-        address_col: Optional[str] = None,
-    ) -> pd.DataFrame:
-        filtered = self.df.copy()
+    def __init__(self, df: pd.DataFrame, zip_coords: dict):
+        self.df = df
+        self.zip_coords = zip_coords
 
-        if search.strip():
-            q = search.strip().lower()
-            mask = pd.Series(False, index=filtered.index)
-            for col in [name_col, city_col, category_col, address_col, zip_col, comment_col]:
-                if col and col in filtered.columns:
-                    mask |= clean_text(filtered[col]).str.contains(q, case=False, na=False)
-            filtered = filtered[mask]
+    def filter(self, search, city, category, min_rating, min_reviews,
+               user_zip, radius_miles, name_col, city_col, category_col,
+               rating_col, review_col, zip_col, comment_col, address_col):
 
-        if city_col and city != "All":
-            filtered = filtered[clean_text(filtered[city_col]) == city]
+        df = self.df.copy()
 
-        if category_col and category != "All":
-            filtered = filtered[clean_text(filtered[category_col]) == category]
+        if search:
+            df = df[df.astype(str).apply(lambda r: r.str.contains(search, case=False).any(), axis=1)]
 
-        if rating_col and rating_col in filtered.columns:
-            filtered = filtered[pd.to_numeric(filtered[rating_col], errors="coerce").fillna(-1) >= min_rating]
+        if city != "All" and city_col:
+            df = df[df[city_col] == city]
 
-        if review_col and review_col in filtered.columns:
-            filtered = filtered[pd.to_numeric(filtered[review_col], errors="coerce").fillna(-1) >= min_reviews]
+        if category != "All" and category_col:
+            df = df[df[category_col] == category]
 
-        if zip_col and zip_col in filtered.columns and user_zip in self.zip_coords:
-            user_lat, user_lon = self.zip_coords[user_zip]
+        if rating_col:
+            df = df[pd.to_numeric(df[rating_col], errors="coerce") >= min_rating]
 
-            def in_radius(row: pd.Series) -> bool:
-                z = str(row.get(zip_col, "")).strip()[:5]
+        if review_col:
+            df = df[pd.to_numeric(df[review_col], errors="coerce") >= min_reviews]
+
+        if zip_col and user_zip in self.zip_coords:
+            lat1, lon1 = self.zip_coords[user_zip]
+
+            def within(row):
+                z = str(row.get(zip_col))
                 if z in self.zip_coords:
-                    lat, lon = self.zip_coords[z]
-                    return distance_miles(user_lat, user_lon, lat, lon) <= radius_miles
+                    lat2, lon2 = self.zip_coords[z]
+                    return distance_miles(lat1, lon1, lat2, lon2) <= radius_miles
                 return False
 
-            filtered = filtered[filtered.apply(in_radius, axis=1)]
+            df = df[df.apply(within, axis=1)]
 
-        return filtered
+        return df
 
-    def top_picks(
-        self,
-        filtered: pd.DataFrame,
-        *,
-        name_col: Optional[str] = None,
-        city_col: Optional[str] = None,
-        category_col: Optional[str] = None,
-        rating_col: Optional[str] = None,
-        review_col: Optional[str] = None,
-        limit: int = 6,
-    ) -> pd.DataFrame:
-        picks = filtered.copy()
+    def top_picks(self, df, name_col, city_col, category_col, rating_col, review_col, limit=6):
 
-        if rating_col and rating_col in picks.columns:
-            picks["__rating__"] = pd.to_numeric(picks[rating_col], errors="coerce")
-        if review_col and review_col in picks.columns:
-            picks["__reviews__"] = pd.to_numeric(picks[review_col], errors="coerce")
+        temp = df.copy()
 
-        sort_cols = []
-        ascending = []
-        if "__rating__" in picks.columns:
-            sort_cols.append("__rating__")
-            ascending.append(False)
-        if "__reviews__" in picks.columns:
-            sort_cols.append("__reviews__")
-            ascending.append(False)
-        if name_col and name_col in picks.columns:
-            sort_cols.append(name_col)
-            ascending.append(True)
+        if rating_col:
+            temp["rating_num"] = pd.to_numeric(temp[rating_col], errors="coerce")
 
-        if sort_cols:
-            picks = picks.sort_values(sort_cols, ascending=ascending, na_position="last")
+        if review_col:
+            temp["review_num"] = pd.to_numeric(temp[review_col], errors="coerce")
 
-        cols = [c for c in [name_col, city_col, category_col, rating_col, review_col] if c and c in picks.columns]
-        return picks.loc[:, cols].head(limit).copy()
+        temp = temp.sort_values(["rating_num", "review_num"], ascending=[False, False])
+
+        return temp.head(limit)

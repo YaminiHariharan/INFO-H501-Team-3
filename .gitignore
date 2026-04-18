@@ -1,25 +1,6 @@
-# Python
+.env
+.venv/
 __pycache__/
 *.pyc
-*.streamlit/
-
-# Virtual environments
-venv/
-.env
-
-# Database files
-*.db
-
-
-# Ignore Mac system files
+.streamlit/
 .DS_Store
-
-# Generated images
-*.png
-
-
-
-
-week-9/
-week-9/
-week-9/

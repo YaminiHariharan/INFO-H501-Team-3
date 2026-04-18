@@ -32,12 +32,36 @@ class TestRestaurantUtils(unittest.TestCase):
         self.assertEqual(set(badges), {"funny", "cool", "useful"})
 
     def test_filter_by_city(self):
-        out = self.finder.filter(city="Philly", city_col="city")
+        out = self.finder.filter(
+            search="",
+            city="Philly",
+            category="All",
+            min_rating=0.0,
+            min_reviews=0,
+            user_zip="19107",
+            radius_miles=20,
+            name_col="name",
+            city_col="city",
+            category_col="category",
+            rating_col="rating",
+            review_col="reviews",
+            zip_col="zip",
+            comment_col="comment",
+            address_col=None,
+        )
         self.assertEqual(len(out), 1)
         self.assertEqual(out.iloc[0]["name"], "Pizza Place")
 
     def test_top_picks(self):
-        out = self.finder.top_picks(self.df, name_col="name", city_col="city", category_col="category", rating_col="rating", review_col="reviews", limit=1)
+        out = self.finder.top_picks(
+            self.df,
+            name_col="name",
+            city_col="city",
+            category_col="category",
+            rating_col="rating",
+            review_col="reviews",
+            limit=1,
+        )
         self.assertEqual(len(out), 1)
         self.assertEqual(out.iloc[0]["name"], "Pizza Place")
 
