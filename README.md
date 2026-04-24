@@ -1,6 +1,6 @@
-# 🍽️ Restaurant Finder & Market Analysis
+# Restaurant Finder & Market Analysis
 
-## 📊 Overview
+## Overview
 
 This project builds an interactive Streamlit web application to explore and compare restaurant data across Indianapolis, Indiana and Philadelphia, Pennsylvania.
 
@@ -13,7 +13,7 @@ The app is designed for **fast client decision-making (under 30 seconds)** using
 
 ---
 
-## 👤 Stakeholder Value
+## Stakeholder Value
 
 This tool is useful for:
 - customers looking for restaurants nearby
@@ -28,7 +28,7 @@ The app provides:
 
 ---
 
-## 🗂️ Data Description
+## Data Description
 
 The dataset contains restaurant information including:
 - name
@@ -43,7 +43,7 @@ ZIP codes are mapped to approximate geographic coordinates for location-based fi
 
 ---
 
-## ⚙️ Algorithm Description
+## Algorithm Description
 
 The app processes user input through several steps:
 
@@ -71,7 +71,7 @@ The app processes user input through several steps:
 
 ---
 
-## 🛠️ Tools Used
+## Tools Used
 
 - **Python** → core programming
 - **pandas** → data manipulation
@@ -82,7 +82,7 @@ The app processes user input through several steps:
 
 ---
 
-## 🧪 Testing
+## Testing
 
 Basic tests are included to verify:
 - filtering logic
@@ -93,7 +93,7 @@ Tests are located in the `/tests` directory.
 
 ---
 
-## ⚠️ Ethical Considerations
+## Ethical Considerations
 
 - Location data is approximate (ZIP-level), not exact addresses
 - Ratings and reviews may reflect bias or incomplete user feedback
@@ -106,7 +106,7 @@ To mitigate risks:
 
 ---
 
-## 🚀 Key Insights
+## Key Insights
 
 - More restaurants does not always mean better quality
 - High review counts indicate reliability, not necessarily higher ratings
@@ -115,7 +115,7 @@ To mitigate risks:
 
 ---
 
-## 🧠 Conclusion
+## Conclusion
 
 This project combines data analysis and an interactive web app to provide a complete restaurant exploration experience.
 
@@ -129,7 +129,7 @@ it allows users to make fast, informed dining decisions.
 
 ---
 
-## 📌 Future Improvements
+## Future Improvements
 
 - exact latitude/longitude for each restaurant
 - real-time data from APIs (Google Places, Yelp)
