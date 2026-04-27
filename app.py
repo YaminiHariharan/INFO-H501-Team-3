@@ -12,182 +12,122 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────
-# Custom CSS — Clean & Editorial
+# Custom CSS
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
-/* ── Page shell ── */
-[data-testid="stAppViewContainer"] { background-color: #1C1C1A; }
-[data-testid="stSidebar"]          { background-color: #141412; }
-[data-testid="stSidebar"] section  { padding-top: 1.5rem; }
-#MainMenu, footer                  { visibility: hidden; }
+/* ── Civilized Caveman style: olive green + white cards + amber ── */
+html, body { background: #3D5C22 !important; }
+[data-testid="stApp"] {
+    background: linear-gradient(180deg, #344E1C 0%, #3D5C22 40%, #486828 100%) !important;
+}
+[data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"],
+[data-testid="stMain"], [data-testid="stMainBlockContainer"],
+section.main, .main { background: transparent !important; }
+[data-testid="stHeader"] { background: rgba(52,78,28,0.97) !important; }
+#MainMenu, footer, [data-testid="stSidebar"] { display: none !important; }
+
+/* ── Streamlit widget labels ── */
+label, [data-testid="stWidgetLabel"] p,
+[data-testid="stSelectbox"] label p,
+[data-testid="stSlider"] label p,
+[data-testid="stMultiSelect"] label p { color: #F5EDD0 !important; }
+
+/* ── Dropdowns ── */
+[data-testid="stSelectbox"] > div > div,
+[data-testid="stMultiSelect"] > div > div {
+    background: #FFFFFF !important;
+    border-color: #A8C870 !important;
+    color: #2A3A14 !important;
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
 
 /* ── Page header ── */
 .page-title {
     font-family: 'Playfair Display', serif;
-    font-size: 40px;
-    font-weight: 700;
-    color: #F0EDE6;
-    letter-spacing: -0.5px;
-    line-height: 1.1;
-    margin-bottom: 2px;
+    font-size: 38px; font-weight: 700;
+    color: #FFFFFF; letter-spacing: -0.5px;
+    line-height: 1.1; margin-bottom: 2px;
 }
 .page-sub {
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: #A09D96;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 20px;
+    font-size: 12px; color: #B8D890;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px;
 }
 
 /* ── Section labels ── */
 .section-label {
     font-family: 'Inter', sans-serif;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #B0ADA5;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #E6E4DE;
-    margin-bottom: 16px;
-    margin-top: 8px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: #B8D890; padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    margin-bottom: 14px; margin-top: 6px;
 }
 
 /* ── Info strip ── */
 .info-strip {
-    background: #F2EFE8;
-    border-left: 3px solid #C8AB84;
-    padding: 10px 16px;
-    border-radius: 0 4px 4px 0;
+    background: rgba(255,255,255,0.1);
+    border-left: 3px solid #F0B040;
+    padding: 9px 14px; border-radius: 0 8px 8px 0;
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 24px;
-    line-height: 1.5;
+    font-size: 13px; color: #F5EDD0;
+    margin-bottom: 20px; line-height: 1.5;
 }
 
-/* ── Restaurant card ── */
+/* ── Restaurant card — WHITE with dark text ── */
 .card-rank {
     font-family: 'Playfair Display', serif;
-    font-size: 30px;
-    font-weight: 700;
-    color: #DDD9D0;
-    line-height: 1;
-    padding-top: 3px;
+    font-size: 26px; font-weight: 700;
+    color: #C8E090; line-height: 1; padding-top: 4px;
 }
 .card-name {
     font-family: 'Playfair Display', serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: #F0EDE6;
-    margin: 0 0 6px 0;
-    line-height: 1.25;
+    font-size: 16px; font-weight: 600;
+    color: #1E2E0E; margin: 0 0 5px 0; line-height: 1.25;
 }
-.card-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 2px;
-}
+.card-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:2px; }
 .badge {
-    font-family: 'Inter', sans-serif;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    background: #2E2E2B; 
-    color: #999;
-    padding: 2px 7px;
-    border-radius: 2px;
+    font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+    letter-spacing:0.1em; text-transform:uppercase;
+    background:#EAF5D0; color:#4A7A20; padding:2px 7px; border-radius:3px;
 }
-.price-badge {
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #4A7C59;
-}
-.star-badge {
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #C8AB84;
-}
-.card-address {
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    color: #B0ADA5;
-    margin-top: 5px;
-}
+.price-badge { font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:#C87820; }
+.star-badge  { font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:#C87820; }
+.card-address { font-family:'Inter',sans-serif; font-size:12px; color:#7A9A50; margin-top:4px; }
 
 /* ── Detail panel ── */
 .detail-label {
-    font-family: 'Inter', sans-serif;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #B0ADA5;
-    margin-bottom: 3px;
+    font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
+    letter-spacing:0.18em; text-transform:uppercase; color:#F0B040; margin-bottom:3px;
 }
-.detail-value {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color:  #D0CCC4;
-}
+.detail-value { font-family:'Inter',sans-serif; font-size:15px; font-weight:600; color:#2A3A14; }
+
+/* ── Chips ── */
 .chip-on {
-    display: inline-block;
-    background: #EEF5F1;
-    color: #3D7A55;
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 9px;
-    border-radius: 2px;
-    margin: 3px 4px 3px 0;
+    display:inline-block; background:#D8F0C0; color:#2E6010;
+    font-family:'Inter',sans-serif; font-size:11px; font-weight:500;
+    padding:3px 9px; border-radius:3px; margin:3px 4px 3px 0;
 }
 .chip-off {
-    display: inline-block;
-    background: #F4F3F0;
-    color: #C8C5BC;
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    padding: 3px 9px;
-    border-radius: 2px;
-    margin: 3px 4px 3px 0;
-    text-decoration: line-through;
+    display:inline-block; background:#F0EDE8; color:#B0A890;
+    font-family:'Inter',sans-serif; font-size:11px;
+    padding:3px 9px; border-radius:3px; margin:3px 4px 3px 0; text-decoration:line-through;
 }
 .cat-chip {
-    display: inline-block;
-    background: #F2EFE8;
-    color: #7A7469;
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    padding: 3px 9px;
-    border-radius: 2px;
-    margin: 3px 4px 3px 0;
-}
-
-/* ── Sidebar tweaks ── */
-.sidebar-heading {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 600;
-    color: #1C1C1A;
-    margin-bottom: 2px;
-}
-.sidebar-tagline {
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    color: #A09D96;
-    font-style: italic;
-    margin-bottom: 20px;
+    display:inline-block; background:#F0F8E0; color:#5A8A30;
+    font-family:'Inter',sans-serif; font-size:11px;
+    padding:3px 9px; border-radius:3px; margin:3px 4px 3px 0; border:1px solid #C8E090;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -250,7 +190,7 @@ def cold_start_recs(city, cuisine_pref=None, price_pref=None, min_rating=1.0, to
     ]
     if cuisine_pref and cuisine_pref != 'Any':
         pool = pool[pool['cuisine_group'] == cuisine_pref]
-    if price_pref:
+    if price_pref is not None:
         pool = pool[pool['price_range'] == price_pref]
     pool = pool.sort_values('bayes_score', ascending=False)
     recs, seen = [], set()
@@ -260,6 +200,14 @@ def cold_start_recs(city, cuisine_pref=None, price_pref=None, min_rating=1.0, to
             seen.add(row['cuisine_group'])
         if len(recs) == top_n:
             break
+    if len(recs) < top_n:
+        existing_ids = {r['business_id'] for r in recs}
+        for _, row in pool.iterrows():
+            if row['business_id'] not in existing_ids:
+                recs.append(row)
+                existing_ids.add(row['business_id'])
+            if len(recs) == top_n:
+                break
     return pd.DataFrame(recs)
 
 def content_based_recs(liked_business_ids, city, top_n=5):
@@ -282,6 +230,15 @@ def content_based_recs(liked_business_ids, city, top_n=5):
             cuisine_counts[cuisine] = count + 1
         if len(recs) == top_n:
             break
+    if len(recs) < top_n:
+        existing_ids = {r['business_id'] for r in recs}
+        for biz_id in top_candidates:
+            if biz_id not in existing_ids:
+                row = df[df['business_id'] == biz_id].iloc[0]
+                recs.append(row)
+                existing_ids.add(biz_id)
+            if len(recs) == top_n:
+                break
     return pd.DataFrame(recs)
 
 
@@ -295,19 +252,33 @@ CUISINE_EMOJI = {
     'Vegetarian & Vegan': '🥗', 'Other': '🍽️',
 }
 
+# Category-level emoji map for chips
+CATEGORY_EMOJI = {
+    'American': '🍔', 'Italian': '🍕', 'Chinese': '🥢', 'Japanese': '🍣',
+    'Korean': '🥘', 'Thai': '🍛', 'Vietnamese': '🍜', 'Mexican': '🌮',
+    'Indian': '🫔', 'Mediterranean': '🫒', 'Seafood': '🦞', 'Pizza': '🍕',
+    'Burgers': '🍔', 'Sandwiches': '🥪', 'Breakfast': '🍳', 'Brunch': '🥞',
+    'Coffee': '☕', 'Cafes': '☕', 'Bakeries': '🥐', 'Desserts': '🍰',
+    'Ice Cream': '🍦', 'Steakhouses': '🥩', 'Sushi Bars': '🍱',
+    'Vegetarian': '🥗', 'Vegan': '🌱', 'Bars': '🍺', 'Nightlife': '🎉',
+    'Fast Food': '🍟', 'Soul Food': '🍗', 'Southern': '🍗', 'Caribbean': '🌴',
+    'Middle Eastern': '🫔', 'African': '🌍', 'French': '🥐', 'Greek': '🫒',
+    'Spanish': '🥘', 'Comfort Food': '🍲', 'Cajun': '🦐', 'BBQ': '🔥',
+}
+
 FEATURE_MAP = {
-    'outdoor_seating':      '🌿 Outdoor Seating',
-    'reservations':         '📅 Reservations',
-    'delivery':             '🛵 Delivery',
-    'takeout':              '🥡 Takeout',
-    'ambience_romantic':    '💑 Romantic',
-    'ambience_casual':      '😊 Casual',
-    'ambience_classy':      '🎩 Classy',
-    'good_for_lunch':       '☀️ Lunch',
-    'good_for_dinner':      '🌙 Dinner',
-    'good_for_brunch':      '🥞 Brunch',
+    'outdoor_seating':        '🌿 Outdoor Seating',
+    'reservations':           '📅 Reservations',
+    'delivery':               '🛵 Delivery',
+    'takeout':                '🥡 Takeout',
+    'ambience_romantic':      '💑 Romantic',
+    'ambience_casual':        '😊 Casual',
+    'ambience_classy':        '🎩 Classy',
+    'good_for_lunch':         '☀️ Lunch',
+    'good_for_dinner':        '🌙 Dinner',
+    'good_for_brunch':        '🥞 Brunch',
     'is_vegetarian_friendly': '🥦 Vegetarian Friendly',
-    'is_halal':             '🌙 Halal',
+    'is_halal':               '🌙 Halal',
 }
 
 def price_str(val):
@@ -316,17 +287,19 @@ def price_str(val):
     except Exception:
         return 'N/A'
 
+def cat_emoji(cat):
+    for key, emoji in CATEGORY_EMOJI.items():
+        if key.lower() in cat.lower():
+            return emoji
+    return '🍽️'
+
 
 def render_detail_panel(row):
-    score = round(float(row.get('bayes_score', 0)), 2)
-
-    # ── Key metrics row ──
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3 = st.columns(3)
     metrics = [
-        (c1, "Yelp Stars",  f"★ {row.get('stars', 'N/A')}"),
-        (c2, "Bayes Score", str(score)),
-        (c3, "Reviews",     f"{int(row.get('review_count', 0)):,}"),
-        (c4, "Price",       price_str(row.get('price_range', 2))),
+        (c1, "Yelp Stars", f"★ {row.get('stars', 'N/A')}"),
+        (c2, "Reviews",    f"{int(row.get('review_count', 0)):,}"),
+        (c3, "Price",      price_str(row.get('price_range', 2))),
     ]
     for col, label, val in metrics:
         with col:
@@ -336,30 +309,28 @@ def render_detail_panel(row):
                 unsafe_allow_html=True,
             )
 
-    st.markdown("<hr style='border:none;border-top:1px solid #E6E4DE;margin:14px 0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border:none;border-top:1px solid #2e2c28;margin:12px 0;'>", unsafe_allow_html=True)
 
-    # ── Categories ──
+    # Categories with emojis
     cats = str(row.get('categories', '') or '')
     if cats:
         chips = "".join(
-            f"<span class='cat-chip'>{c.strip()}</span>"
+            f"<span class='cat-chip'>{cat_emoji(c.strip())} {c.strip()}</span>"
             for c in cats.split(',') if c.strip()
         )
         st.markdown(
-            "<div class='detail-label' style='margin-bottom:6px;'>Categories</div>"
-            + chips,
+            "<div class='detail-label' style='margin-bottom:6px;'>Categories</div>" + chips,
             unsafe_allow_html=True,
         )
-        st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
 
-    # ── Features ──
+    # Features
     chips = ""
     for col, label in FEATURE_MAP.items():
         val = row.get(col, 0)
         is_on = pd.notna(val) and float(val) == 1.0
         css_class = 'chip-on' if is_on else 'chip-off'
         chips += f"<span class='{css_class}'>{label}</span>"
-
     st.markdown(
         "<div class='detail-label' style='margin-bottom:6px;'>Features</div>" + chips,
         unsafe_allow_html=True,
@@ -367,15 +338,15 @@ def render_detail_panel(row):
 
 
 def render_card(rank, row):
-    cuisine  = row.get('cuisine_group', 'Other')
-    emoji    = CUISINE_EMOJI.get(cuisine, '🍽️')
-    stars    = row.get('stars', 0)
-    address  = row.get('address', '')
-    city_name= row.get('city', '')
-    rank_str = f"{rank:02d}"
+    cuisine   = row.get('cuisine_group', 'Other')
+    emoji     = CUISINE_EMOJI.get(cuisine, '🍽️')
+    stars     = row.get('stars', 0)
+    address   = row.get('address', '')
+    city_name = row.get('city', '')
+    rank_str  = str(rank).zfill(2)
 
     with st.container(border=True):
-        left, right = st.columns([1, 11])
+        left, right = st.columns([1, 10])
         with left:
             st.markdown(f"<div class='card-rank'>{rank_str}</div>", unsafe_allow_html=True)
         with right:
@@ -389,43 +360,49 @@ def render_card(rank, row):
                 f"<div class='card-address'>📍 {address}, {city_name}</div>",
                 unsafe_allow_html=True,
             )
-
         with st.expander("View full details →"):
             render_detail_panel(row)
 
 
 # ─────────────────────────────────────────────
-# Sidebar
+# Page Header
 # ─────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("<div class='sidebar-heading'>🗺️ Nom Nom Navigator</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sidebar-tagline'>Life's too short for bad restaurants</div>", unsafe_allow_html=True)
-    st.divider()
+st.markdown("<div class='page-title'>🗺️ Nom Nom Navigator</div>", unsafe_allow_html=True)
+st.markdown("<div class='page-sub'>Discover your next great meal</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='section-label'>City</div>", unsafe_allow_html=True)
-    city = st.selectbox("City", options=sorted(df['city'].unique()), label_visibility="collapsed")
+# ─────────────────────────────────────────────
+# Horizontal Filter Bar (replaces sidebar)
+# ─────────────────────────────────────────────
+with st.container():
+    st.markdown("<div class='filter-bar'>", unsafe_allow_html=True)
+    f1, f2, f3, f4 = st.columns([1.2, 1.5, 1.5, 1])
+    with f1:
+        city = st.selectbox("🏙️ City", options=sorted(df['city'].unique()))
+    with f2:
+        cuisine = st.selectbox(
+            "🍴 Cuisine",
+            options=['Any'] + sorted(df['cuisine_group'].dropna().unique().tolist()),
+        )
+    with f3:
+        price_options = {
+            'Any price': None,
+            '$ — Budget': 1,
+            '$$ — Mid-range': 2,
+            '$$$ — Upscale': 3,
+            '$$$$ — Fine Dining': 4,
+        }
+        price_label = st.selectbox("💰 Price Range", options=list(price_options.keys()))
+        price = price_options[price_label]
+    with f4:
+        min_rating = st.slider("⭐ Min Rating", 1.0, 5.0, 3.5, step=0.5)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='section-label' style='margin-top:20px;'>Filters</div>", unsafe_allow_html=True)
-    cuisine = st.selectbox(
-        "Cuisine",
-        options=['Any'] + sorted(df['cuisine_group'].dropna().unique().tolist()),
-    )
-    price = st.selectbox(
-        "Price Range",
-        options=[1, 2, 3, 4],
-        format_func=lambda x: ['$ — Budget', '$$ — Mid-range', '$$$ — Upscale', '$$$$ — Fine Dining'][x - 1],
-    )
-    min_rating = st.slider("Minimum Rating", 1.0, 5.0, 3.5, step=0.5)
-
-    st.divider()
-    st.markdown("<div class='section-label'>Personalise</div>", unsafe_allow_html=True)
-    st.caption("Add 3+ restaurants you love for tailored picks")
-    all_restaurants = df[df['city'] == city]['name'].sort_values().unique()
-    liked_names = st.multiselect(
-        "Liked restaurants",
-        options=all_restaurants,
-        label_visibility="collapsed",
-    )
+# Liked restaurants — full width below filters
+all_restaurants = df[df['city'] == city]['name'].sort_values().unique()
+liked_names = st.multiselect(
+    "Personalise — add 3+ restaurants you love for tailored picks",
+    options=all_restaurants,
+)
 
 
 # ─────────────────────────────────────────────
@@ -444,13 +421,9 @@ else:
     results = cold_start_recs(city, cuisine_pref=cuisine, price_pref=price, min_rating=min_rating)
     mode = "popular"
 
-
 # ─────────────────────────────────────────────
-# Main Layout
+# Info strip
 # ─────────────────────────────────────────────
-st.markdown("<div class='page-title'>Nom Nom Navigator</div>", unsafe_allow_html=True)
-st.markdown("<div class='page-sub'>Discover your next great meal</div>", unsafe_allow_html=True)
-
 if mode == "personalized":
     st.markdown(
         f"<div class='info-strip'>✨ Showing personalised recommendations based on "
@@ -460,19 +433,20 @@ if mode == "personalized":
 else:
     st.markdown(
         f"<div class='info-strip'>📈 Showing top-rated spots in <strong>{city}</strong>. "
-        f"Add 3+ liked restaurants in the sidebar for personalised picks.</div>",
+        f"Add 3+ liked restaurants above for personalised picks.</div>",
         unsafe_allow_html=True,
     )
 
+# ─────────────────────────────────────────────
+# Map + Cards
+# ─────────────────────────────────────────────
 if results is not None and len(results) > 0:
 
-    # ── Two-column layout: map left, ranked cards right ──────────────
     col_map, col_cards = st.columns([5, 5], gap="large")
 
     with col_map:
         st.markdown("<div class='section-label'>On the Map</div>", unsafe_allow_html=True)
 
-        # All open restaurants in the city, colored by star rating
         all_city = (
             df[(df['city'] == city) & (df['is_open'] == 1)]
             .drop_duplicates('business_id')[['latitude', 'longitude', 'name', 'stars', 'cuisine_group']]
@@ -480,7 +454,6 @@ if results is not None and len(results) > 0:
             .copy()
         )
 
-        # purple (1★) → green (5★), matching Image 2 palette
         def rating_color(stars):
             t = (float(stars) - 1) / 4.0
             r = int(180 - 150 * t)
@@ -489,8 +462,6 @@ if results is not None and len(results) > 0:
             return [r, g, b, 180]
 
         all_city['color'] = all_city['stars'].apply(rating_color)
-
-        # Top recommended restaurants — highlighted in amber on top
         rec_map = results[['latitude', 'longitude', 'name', 'stars', 'cuisine_group']].dropna()
         center_lat = all_city['latitude'].mean()
         center_lon = all_city['longitude'].mean()
@@ -504,7 +475,6 @@ if results is not None and len(results) > 0:
                 pitch=0,
             ),
             layers=[
-                # All city restaurants — small, rating-colored
                 pdk.Layer(
                     'ScatterplotLayer',
                     data=all_city,
@@ -514,7 +484,6 @@ if results is not None and len(results) > 0:
                     pickable=True,
                     opacity=0.7,
                 ),
-                # Recommended restaurants — larger amber dots on top
                 pdk.Layer(
                     'ScatterplotLayer',
                     data=rec_map,
@@ -528,14 +497,7 @@ if results is not None and len(results) > 0:
         ), use_container_width=True)
         st.caption("🟠 Your recommendations · 🟢 Highly rated · 🟣 Lower rated")
 
-        # ── Mini summary table below map ──
-        st.markdown("<div class='section-label' style='margin-top:24px;'>Quick Glance</div>", unsafe_allow_html=True)
-        summary = results[['name', 'cuisine_group', 'stars', 'price_range']].copy()
-        summary['price_range'] = summary['price_range'].apply(
-            lambda x: '$' * int(x) if pd.notna(x) else 'N/A'
-        )
-        summary.columns = ['Name', 'Cuisine', '★', 'Price']
-        st.dataframe(summary, use_container_width=True, hide_index=True)
+
 
     with col_cards:
         st.markdown("<div class='section-label'>Top Picks</div>", unsafe_allow_html=True)
