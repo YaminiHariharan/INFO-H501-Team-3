@@ -1,5 +1,7 @@
 # Nom Nom Navigator 🗺️
 
+App Link : https://yelprestaurantpredictor.streamlit.app/
+
 ## Abstract
 Nom Nom Navigator is a restaurant recommendation web app built for food lovers 
 in Indianapolis and Philadelphia. The app helps users discover highly-rated 
