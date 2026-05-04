@@ -1,0 +1,507 @@
+import streamlit as st
+import pandas as pd
+import pydeck as pdk
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+
+st.set_page_config(
+    page_title="Nom Nom Navigator",
+    layout="wide"
+)
+
+# ─────────────────────────────────────────────
+# Custom CSS
+# ─────────────────────────────────────────────
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Civilized Caveman style: olive green + white cards + amber ── */
+html, body { background: #3D5C22 !important; }
+[data-testid="stApp"] {
+    background: linear-gradient(180deg, #344E1C 0%, #3D5C22 40%, #486828 100%) !important;
+}
+[data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"],
+[data-testid="stMain"], [data-testid="stMainBlockContainer"],
+section.main, .main { background: transparent !important; }
+[data-testid="stHeader"] { background: rgba(52,78,28,0.97) !important; }
+#MainMenu, footer, [data-testid="stSidebar"] { display: none !important; }
+
+/* ── Streamlit widget labels ── */
+label, [data-testid="stWidgetLabel"] p,
+[data-testid="stSelectbox"] label p,
+[data-testid="stSlider"] label p,
+[data-testid="stMultiSelect"] label p { color: #F5EDD0 !important; }
+
+/* ── Dropdowns ── */
+[data-testid="stSelectbox"] > div > div,
+[data-testid="stMultiSelect"] > div > div {
+    background: #FFFFFF !important;
+    border-color: #A8C870 !important;
+    color: #2A3A14 !important;
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+/* ── Page header ── */
+.page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px; font-weight: 700;
+    color: #FFFFFF; letter-spacing: -0.5px;
+    line-height: 1.1; margin-bottom: 2px;
+}
+.page-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; color: #B8D890;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px;
+}
+
+/* ── Section labels ── */
+.section-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: #B8D890; padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    margin-bottom: 14px; margin-top: 6px;
+}
+
+/* ── Info strip ── */
+.info-strip {
+    background: rgba(255,255,255,0.1);
+    border-left: 3px solid #F0B040;
+    padding: 9px 14px; border-radius: 0 8px 8px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; color: #F5EDD0;
+    margin-bottom: 20px; line-height: 1.5;
+}
+
+/* ── Restaurant card — WHITE with dark text ── */
+.card-rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700;
+    color: #C8E090; line-height: 1; padding-top: 4px;
+}
+.card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; font-weight: 600;
+    color: #1E2E0E; margin: 0 0 5px 0; line-height: 1.25;
+}
+.card-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:2px; }
+.badge {
+    font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+    letter-spacing:0.1em; text-transform:uppercase;
+    background:#EAF5D0; color:#4A7A20; padding:2px 7px; border-radius:3px;
+}
+.price-badge { font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:#C87820; }
+.star-badge  { font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:#C87820; }
+.card-address { font-family:'Inter',sans-serif; font-size:12px; color:#7A9A50; margin-top:4px; }
+
+/* ── Detail panel ── */
+.detail-label {
+    font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
+    letter-spacing:0.18em; text-transform:uppercase; color:#F0B040; margin-bottom:3px;
+}
+.detail-value { font-family:'Inter',sans-serif; font-size:15px; font-weight:600; color:#2A3A14; }
+
+/* ── Chips ── */
+.chip-on {
+    display:inline-block; background:#D8F0C0; color:#2E6010;
+    font-family:'Inter',sans-serif; font-size:11px; font-weight:500;
+    padding:3px 9px; border-radius:3px; margin:3px 4px 3px 0;
+}
+.chip-off {
+    display:inline-block; background:#F0EDE8; color:#B0A890;
+    font-family:'Inter',sans-serif; font-size:11px;
+    padding:3px 9px; border-radius:3px; margin:3px 4px 3px 0; text-decoration:line-through;
+}
+.cat-chip {
+    display:inline-block; background:#F0F8E0; color:#5A8A30;
+    font-family:'Inter',sans-serif; font-size:11px;
+    padding:3px 9px; border-radius:3px; margin:3px 4px 3px 0; border:1px solid #C8E090;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────
+# Load Data & Model
+# ─────────────────────────────────────────────
+@st.cache_data
+def load_data():
+    df = pd.read_json("df_restaurants_only.json", lines=True)
+    df['price_range'] = df['price_range'].fillna(2)
+    df['categories_list'] = df['categories'].str.split(', ')
+    return df
+
+@st.cache_resource
+def load_model(df):
+    cuisine_dummies = pd.get_dummies(df['cuisine_group'], prefix='cuisine')
+    bool_cols = [
+        'outdoor_seating', 'reservations', 'delivery', 'takeout',
+        'ambience_romantic', 'ambience_casual', 'ambience_classy',
+        'good_for_lunch', 'good_for_dinner', 'good_for_brunch',
+        'is_vegetarian_friendly', 'is_halal'
+    ]
+    scaler = MinMaxScaler()
+    df['price_norm'] = scaler.fit_transform(df[['price_range']].fillna(2))
+    feature_matrix = pd.concat([
+        cuisine_dummies,
+        df[['price_norm'] + bool_cols].fillna(0).astype(float),
+    ], axis=1)
+    weight_map = {
+        'price_norm': 3.0, 'ambience_classy': 3.0, 'reservations': 3.0,
+        'good_for_brunch': 3.0, 'outdoor_seating': 2.0, 'delivery': 2.0,
+        'ambience_casual': 2.0, 'good_for_lunch': 2.0, 'good_for_dinner': 2.0,
+        'takeout': 1.0, 'ambience_romantic': 1.0,
+    }
+    for col, weight in weight_map.items():
+        if col in feature_matrix.columns:
+            feature_matrix[col] *= weight
+    for col in cuisine_dummies.columns:
+        feature_matrix[col] *= 3.0
+    feature_matrix.index = df['business_id']
+    sim_matrix = cosine_similarity(feature_matrix.values)
+    sim_df = pd.DataFrame(sim_matrix, index=feature_matrix.index, columns=feature_matrix.index)
+    return sim_df
+
+df = load_data()
+item_sim_df = load_model(df)
+
+
+# ─────────────────────────────────────────────
+# Recommender Functions
+# ─────────────────────────────────────────────
+def cold_start_recs(city, cuisine_pref=None, price_pref=None, min_rating=1.0, top_n=5):
+    pool = df[
+        (df['city'] == city) &
+        (df['is_open'] == 1) &
+        (df['stars'] >= min_rating) &
+        (~df['name'].str.contains('Reading Terminal Market', na=False))
+    ]
+    if cuisine_pref and cuisine_pref != 'Any':
+        pool = pool[pool['cuisine_group'] == cuisine_pref]
+    if price_pref is not None:
+        pool = pool[pool['price_range'] == price_pref]
+    pool = pool.sort_values('bayes_score', ascending=False)
+    recs, seen = [], set()
+    for _, row in pool.iterrows():
+        if row['cuisine_group'] not in seen:
+            recs.append(row)
+            seen.add(row['cuisine_group'])
+        if len(recs) == top_n:
+            break
+    if len(recs) < top_n:
+        existing_ids = {r['business_id'] for r in recs}
+        for _, row in pool.iterrows():
+            if row['business_id'] not in existing_ids:
+                recs.append(row)
+                existing_ids.add(row['business_id'])
+            if len(recs) == top_n:
+                break
+    return pd.DataFrame(recs)
+
+def content_based_recs(liked_business_ids, city, top_n=5):
+    valid_ids = [b for b in liked_business_ids if b in item_sim_df.index]
+    if not valid_ids:
+        return None
+    sim_scores = item_sim_df[valid_ids].mean(axis=1)
+    city_businesses = df[df['city'] == city]['business_id'].values
+    sim_scores = sim_scores[sim_scores.index.isin(city_businesses)]
+    sim_scores = sim_scores.drop(labels=valid_ids, errors='ignore')
+    sim_scores = sim_scores[df.set_index('business_id')['bayes_score'] >= 3.5]
+    top_candidates = sim_scores.nlargest(top_n * 10).index.tolist()
+    recs, cuisine_counts = [], {}
+    for biz_id in top_candidates:
+        row = df[df['business_id'] == biz_id].iloc[0]
+        cuisine = row['cuisine_group']
+        count = cuisine_counts.get(cuisine, 0)
+        if count < 2:
+            recs.append(row)
+            cuisine_counts[cuisine] = count + 1
+        if len(recs) == top_n:
+            break
+    if len(recs) < top_n:
+        existing_ids = {r['business_id'] for r in recs}
+        for biz_id in top_candidates:
+            if biz_id not in existing_ids:
+                row = df[df['business_id'] == biz_id].iloc[0]
+                recs.append(row)
+                existing_ids.add(biz_id)
+            if len(recs) == top_n:
+                break
+    return pd.DataFrame(recs)
+
+
+# ─────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────
+CUISINE_EMOJI = {
+    'American': '🍔', 'Italian': '🍕', 'Asian': '🍜',
+    'Mexican & Latin': '🌮', 'Casual': '🥪', 'Seafood': '🦞',
+    'Steakhouse': '🥩', 'Indian & Middle Eastern': '🫔',
+    'Vegetarian & Vegan': '🥗', 'Other': '🍽️',
+}
+
+# Category-level emoji map for chips
+CATEGORY_EMOJI = {
+    'American': '🍔', 'Italian': '🍕', 'Chinese': '🥢', 'Japanese': '🍣',
+    'Korean': '🥘', 'Thai': '🍛', 'Vietnamese': '🍜', 'Mexican': '🌮',
+    'Indian': '🫔', 'Mediterranean': '🫒', 'Seafood': '🦞', 'Pizza': '🍕',
+    'Burgers': '🍔', 'Sandwiches': '🥪', 'Breakfast': '🍳', 'Brunch': '🥞',
+    'Coffee': '☕', 'Cafes': '☕', 'Bakeries': '🥐', 'Desserts': '🍰',
+    'Ice Cream': '🍦', 'Steakhouses': '🥩', 'Sushi Bars': '🍱',
+    'Vegetarian': '🥗', 'Vegan': '🌱', 'Bars': '🍺', 'Nightlife': '🎉',
+    'Fast Food': '🍟', 'Soul Food': '🍗', 'Southern': '🍗', 'Caribbean': '🌴',
+    'Middle Eastern': '🫔', 'African': '🌍', 'French': '🥐', 'Greek': '🫒',
+    'Spanish': '🥘', 'Comfort Food': '🍲', 'Cajun': '🦐', 'BBQ': '🔥',
+}
+
+FEATURE_MAP = {
+    'outdoor_seating':        '🌿 Outdoor Seating',
+    'reservations':           '📅 Reservations',
+    'delivery':               '🛵 Delivery',
+    'takeout':                '🥡 Takeout',
+    'ambience_romantic':      '💑 Romantic',
+    'ambience_casual':        '😊 Casual',
+    'ambience_classy':        '🎩 Classy',
+    'good_for_lunch':         '☀️ Lunch',
+    'good_for_dinner':        '🌙 Dinner',
+    'good_for_brunch':        '🥞 Brunch',
+    'is_vegetarian_friendly': '🥦 Vegetarian Friendly',
+    'is_halal':               '🌙 Halal',
+}
+
+def price_str(val):
+    try:
+        return '$' * int(val)
+    except Exception:
+        return 'N/A'
+
+def cat_emoji(cat):
+    for key, emoji in CATEGORY_EMOJI.items():
+        if key.lower() in cat.lower():
+            return emoji
+    return '🍽️'
+
+
+def render_detail_panel(row):
+    c1, c2, c3 = st.columns(3)
+    metrics = [
+        (c1, "Yelp Stars", f"★ {row.get('stars', 'N/A')}"),
+        (c2, "Reviews",    f"{int(row.get('review_count', 0)):,}"),
+        (c3, "Price",      price_str(row.get('price_range', 2))),
+    ]
+    for col, label, val in metrics:
+        with col:
+            st.markdown(
+                f"<div class='detail-label'>{label}</div>"
+                f"<div class='detail-value'>{val}</div>",
+                unsafe_allow_html=True,
+            )
+
+    st.markdown("<hr style='border:none;border-top:1px solid #2e2c28;margin:12px 0;'>", unsafe_allow_html=True)
+
+    # Categories with emojis
+    cats = str(row.get('categories', '') or '')
+    if cats:
+        chips = "".join(
+            f"<span class='cat-chip'>{cat_emoji(c.strip())} {c.strip()}</span>"
+            for c in cats.split(',') if c.strip()
+        )
+        st.markdown(
+            "<div class='detail-label' style='margin-bottom:6px;'>Categories</div>" + chips,
+            unsafe_allow_html=True,
+        )
+        st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+
+    # Features
+    chips = ""
+    for col, label in FEATURE_MAP.items():
+        val = row.get(col, 0)
+        is_on = pd.notna(val) and float(val) == 1.0
+        css_class = 'chip-on' if is_on else 'chip-off'
+        chips += f"<span class='{css_class}'>{label}</span>"
+    st.markdown(
+        "<div class='detail-label' style='margin-bottom:6px;'>Features</div>" + chips,
+        unsafe_allow_html=True,
+    )
+
+
+def render_card(rank, row):
+    cuisine   = row.get('cuisine_group', 'Other')
+    emoji     = CUISINE_EMOJI.get(cuisine, '🍽️')
+    stars     = row.get('stars', 0)
+    address   = row.get('address', '')
+    city_name = row.get('city', '')
+    rank_str  = str(rank).zfill(2)
+
+    with st.container(border=True):
+        left, right = st.columns([1, 10])
+        with left:
+            st.markdown(f"<div class='card-rank'>{rank_str}</div>", unsafe_allow_html=True)
+        with right:
+            st.markdown(
+                f"<p class='card-name'>{emoji} {row['name']}</p>"
+                f"<div class='card-meta'>"
+                f"  <span class='badge'>{cuisine}</span>"
+                f"  <span class='price-badge'>{price_str(row.get('price_range', 2))}</span>"
+                f"  <span class='star-badge'>★ {stars}</span>"
+                f"</div>"
+                f"<div class='card-address'>📍 {address}, {city_name}</div>",
+                unsafe_allow_html=True,
+            )
+        with st.expander("View full details →"):
+            render_detail_panel(row)
+
+
+# ─────────────────────────────────────────────
+# Page Header
+# ─────────────────────────────────────────────
+st.markdown("<div class='page-title'>🗺️ Nom Nom Navigator</div>", unsafe_allow_html=True)
+st.markdown("<div class='page-sub'>Discover your next great meal</div>", unsafe_allow_html=True)
+
+# ─────────────────────────────────────────────
+# Horizontal Filter Bar (replaces sidebar)
+# ─────────────────────────────────────────────
+with st.container():
+    st.markdown("<div class='filter-bar'>", unsafe_allow_html=True)
+    f1, f2, f3, f4 = st.columns([1.2, 1.5, 1.5, 1])
+    with f1:
+        city = st.selectbox("🏙️ City", options=sorted(df['city'].unique()))
+    with f2:
+        cuisine = st.selectbox(
+            "🍴 Cuisine",
+            options=['Any'] + sorted(df['cuisine_group'].dropna().unique().tolist()),
+        )
+    with f3:
+        price_options = {
+            'Any price': None,
+            '$ — Budget': 1,
+            '$$ — Mid-range': 2,
+            '$$$ — Upscale': 3,
+            '$$$$ — Fine Dining': 4,
+        }
+        price_label = st.selectbox("💰 Price Range", options=list(price_options.keys()))
+        price = price_options[price_label]
+    with f4:
+        min_rating = st.slider("⭐ Min Rating", 1.0, 5.0, 3.5, step=0.5)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# Liked restaurants — full width below filters
+all_restaurants = df[df['city'] == city]['name'].sort_values().unique()
+liked_names = st.multiselect(
+    "Personalise — add 3+ restaurants you love for tailored picks",
+    options=all_restaurants,
+)
+
+
+# ─────────────────────────────────────────────
+# Run Recommender
+# ─────────────────────────────────────────────
+liked_ids = (
+    df[df['name'].isin(liked_names)]
+    .drop_duplicates('business_id')['business_id']
+    .tolist()
+)
+
+if len(liked_ids) >= 3:
+    results = content_based_recs(liked_ids, city)
+    mode = "personalized"
+else:
+    results = cold_start_recs(city, cuisine_pref=cuisine, price_pref=price, min_rating=min_rating)
+    mode = "popular"
+
+# ─────────────────────────────────────────────
+# Info strip
+# ─────────────────────────────────────────────
+if mode == "personalized":
+    st.markdown(
+        f"<div class='info-strip'>✨ Showing personalised recommendations based on "
+        f"<strong>{len(liked_ids)}</strong> restaurants you liked.</div>",
+        unsafe_allow_html=True,
+    )
+else:
+    st.markdown(
+        f"<div class='info-strip'>📈 Showing top-rated spots in <strong>{city}</strong>. "
+        f"Add 3+ liked restaurants above for personalised picks.</div>",
+        unsafe_allow_html=True,
+    )
+
+# ─────────────────────────────────────────────
+# Map + Cards
+# ─────────────────────────────────────────────
+if results is not None and len(results) > 0:
+
+    col_map, col_cards = st.columns([5, 5], gap="large")
+
+    with col_map:
+        st.markdown("<div class='section-label'>On the Map</div>", unsafe_allow_html=True)
+
+        all_city = (
+            df[(df['city'] == city) & (df['is_open'] == 1)]
+            .drop_duplicates('business_id')[['latitude', 'longitude', 'name', 'stars', 'cuisine_group']]
+            .dropna(subset=['latitude', 'longitude'])
+            .copy()
+        )
+
+        def rating_color(stars):
+            t = (float(stars) - 1) / 4.0
+            r = int(180 - 150 * t)
+            g = int(80  + 160 * t)
+            b = int(180 - 160 * t)
+            return [r, g, b, 180]
+
+        all_city['color'] = all_city['stars'].apply(rating_color)
+        rec_map = results[['latitude', 'longitude', 'name', 'stars', 'cuisine_group']].dropna()
+        center_lat = all_city['latitude'].mean()
+        center_lon = all_city['longitude'].mean()
+
+        st.pydeck_chart(pdk.Deck(
+            map_style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+            initial_view_state=pdk.ViewState(
+                latitude=center_lat,
+                longitude=center_lon,
+                zoom=11,
+                pitch=0,
+            ),
+            layers=[
+                pdk.Layer(
+                    'ScatterplotLayer',
+                    data=all_city,
+                    get_position='[longitude, latitude]',
+                    get_color='color',
+                    get_radius=80,
+                    pickable=True,
+                    opacity=0.7,
+                ),
+                pdk.Layer(
+                    'ScatterplotLayer',
+                    data=rec_map,
+                    get_position='[longitude, latitude]',
+                    get_color='[210, 105, 40, 255]',
+                    get_radius=220,
+                    pickable=True,
+                ),
+            ],
+            tooltip={"text": "🍽️ {name}\n⭐ {stars}\n🍴 {cuisine_group}"},
+        ), use_container_width=True)
+        st.caption("🟠 Your recommendations · 🟢 Highly rated · 🟣 Lower rated")
+
+
+
+    with col_cards:
+        st.markdown("<div class='section-label'>Top Picks</div>", unsafe_allow_html=True)
+        for rank, (_, row) in enumerate(results.iterrows(), start=1):
+            render_card(rank, row)
+
+else:
+    st.warning("No restaurants found matching your filters — try loosening the criteria.")
